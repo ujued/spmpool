@@ -7,9 +7,8 @@ from time import sleep
 class Connection(object):
     def __init__(self, pool, **kwargs):
         self._pool = pool
-        self._closed = False
         self.proto = connections.Connection(**kwargs)
-        self.proto.autocommit(True)
+        self._restore()
     def _restore(self):
         self._closed = False
         self.proto.autocommit(True)
