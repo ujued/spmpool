@@ -1,7 +1,9 @@
 python3依赖包：pymysql   
 spmpool.py 放到lib目录，使用方法：   
 1. python3项目中直接   
-`import spmpool`
+```python
+import spmpool
+```
 2. 添加连接池配置   
 ```python
 spmpool.add_config('local', 'root', '123456', 'testdb', init_pool_size=20)
