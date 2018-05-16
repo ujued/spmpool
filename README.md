@@ -2,14 +2,14 @@
 
 Python优点很多，适合快速开发，常用数据结构都有，且提供了很方便的api。我比较倾向于用新版的`Python3`，而它在操作MySQL数据库时，会用到`PyMySQL`驱动，我就针对这个驱动，为Python3编写了一个小巧的数据库连接池`spmpool`，使用非常方便。
 
-```python
+```
 python3依赖包：pymysql
 
 使用之前记得把 spmpool.py 放到lib目录中
 ```
 
 ### 使用方法
-```
+```python
 import spmpool 
 
 # 添加连接池配置
