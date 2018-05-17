@@ -90,7 +90,32 @@ class ConnectionPool(object):
         self.startup()
 
     def __keep_alive_runner(self):
-        pass
+        _flag = 0
+        _sleep_time = 0
+        _cur_day = datetime.now().day
+        while True:
+            if _flag == 0:
+                _flag += 1
+                time.sleep(3600)
+                if self._get_count < self._init_size / 5:
+                    _sleep_time = 8 * 60 * 60 / self._init_size - 10
+                elif self._get_count < self._init_size / 3:
+                    _sleep_time = 8 * 60 * 60 / (self._init_size - self._init_size / 5) - 5
+                elif self._get_count < self._init_size / 2:
+                    _sleep_time = 8 * 60 * 60 / (self._init_size - self._init_size / 3) - 2
+                elif self._get_count < self._init_size:
+                    _sleep_time = 8 * 60 * 60 / (self._init_size - self._init_size / 2) - 2
+                else:
+                    _sleep_time = 2 * 60 * 60
+                self._get_count = 0
+            conn = self.get()
+            assert isinstance(conn, Connection)
+            conn.execute('select 1')
+            conn.close()
+            time.sleep(_sleep_time)
+            if datetime.now().day != _cur_day:  # 1天后重新选择keep_alive策略
+                _cur_day = datetime.now().day
+                _flag = 0
 
     def __monitor_runner(self):
         """ 每隔300秒检测一次未手动关闭的资源，将其加入待关闭队列 """
@@ -207,7 +232,7 @@ class ResultProxy(object):
 
     @classmethod
     def _2row(cls, proto_row, desc):
-        row = _Row()
+        row = Row()
         for i in range(len(desc)):
             col_name = desc[i][0]
             if col_name.isdigit():
@@ -225,7 +250,7 @@ class ResultProxy(object):
         self._all_results.__next__()
 
 
-class _Row(object):
+class Row(object):
     """ 数据表行对象 """
     def __init__(self):
         self.index = []
@@ -284,7 +309,7 @@ def spmpool(pool_name='dev'):
             )
     pool = ConnectionPool.instances[pool_name]
     assert isinstance(pool, ConnectionPool)
-    pool.keep_alive()
+    pool.keep_alive()  # 开启一些后台线程保持连接池高可用性
     return pool
 
 
