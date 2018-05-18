@@ -98,22 +98,29 @@ class ConnectionPool(object):
                 _flag += 1
                 time.sleep(3600)
                 if self._get_count < self._init_size / 5:
-                    _sleep_time = 8 * 60 * 60 / self._init_size - 10
+                    _sleep_time = 7 * 3600 / self._init_size - 10
+                    logging.debug('hit 1.')
                 elif self._get_count < self._init_size / 3:
-                    _sleep_time = 8 * 60 * 60 / (self._init_size - self._init_size / 5) - 5
+                    _sleep_time = 7 * 3600 / (self._init_size - self._init_size / 5) - 5
+                    logging.debug('hit 2')
                 elif self._get_count < self._init_size / 2:
-                    _sleep_time = 8 * 60 * 60 / (self._init_size - self._init_size / 3) - 2
+                    _sleep_time = 7 * 3600 / (self._init_size - self._init_size / 3) - 2
+                    logging.debug('hit 3.')
                 elif self._get_count < self._init_size:
-                    _sleep_time = 8 * 60 * 60 / (self._init_size - self._init_size / 2) - 2
+                    _sleep_time = 7 * 3600 / (self._init_size - self._init_size / 2) - 2
+                    logging.debug('hit 4')
                 else:
-                    _sleep_time = 2 * 60 * 60
-                self._get_count = 0
+                    _sleep_time = 7 * 3600
+                    _flag = 0
+                    self._get_count = 0
+                    logging.debug('hit final.')
             conn = self.get()
             assert isinstance(conn, Connection)
             conn.execute('select 1')
             conn.close()
             time.sleep(_sleep_time)
             if datetime.now().day != _cur_day:  # 1天后重新选择keep_alive策略
+                self._get_count = 0
                 _cur_day = datetime.now().day
                 _flag = 0
 
